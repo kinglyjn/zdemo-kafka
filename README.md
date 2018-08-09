@@ -11,7 +11,7 @@
 	
 	示例：
 	一个kafka cluster中的某个topic，有4个partition。有两个consumer group (A and B)订阅了该topic。 
-	Consumer Group A有2个partition：p0、p1，Consumer Group B有4个partition：c3,c4,c5,c6。经过
+	Consumer Group A有2个consumer：c1、c2，Consumer Group B有4个consumer：c3,c4,c5,c6。经过
 	分区分配后，consumer与partition的订阅关系如下：
 	----------------------------------------------------
 	Topic 中的4个partition在Consumer Group A中的分配情况如下：
