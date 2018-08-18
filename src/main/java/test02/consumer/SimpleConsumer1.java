@@ -1,11 +1,14 @@
 package test02.consumer;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 
 /**
  * 消息消费者，自动周期性offset
@@ -71,13 +74,40 @@ public class SimpleConsumer1 {
 	}
 	
 	
-	@SuppressWarnings("resource")
+	/**
+	 * 获取 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfSubscribed(List<String> topics) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.subscribe(topics);
+		return consumer;
+	}
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfAssigned(Collection<TopicPartition> partitions) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.assign(partitions);
+		return consumer;
+	}
+	
+	/**
+	 * 关闭 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> void close(KafkaConsumer<K,V> consumer) {
+		consumer.close();
+	}
+	
+	
+	/*
+	 * main
+	 * 
+	 */
 	public static void main(String[] args) {
-		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(getConfiguration());
-		consumer.subscribe(Arrays.asList("test0807"));
+		List<String> topics = Arrays.asList("test0817");
+		KafkaConsumer<String, String> consumer = getKafkaConsumerOfSubscribed(topics);
 		
 		while (true) {
-			ConsumerRecords<String, String> records = consumer.poll(200); //获取缓冲区消息的超时时间，如果设置为0则立即获取缓冲区的所有消息
+			ConsumerRecords<String, String> records = consumer.poll(500); //获取缓冲区消息的超时时间，如果设置为0则立即获取缓冲区的所有消息
 			for (ConsumerRecord<String, String> record : records) {
 				System.err.printf("[Consumer] partition=%d, offset=%d, key=%s, value=%s%n", record.partition(), record.offset(), record.key(), record.value());
 			}

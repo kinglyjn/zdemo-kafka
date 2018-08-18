@@ -1,6 +1,7 @@
 package test02.consumer;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -70,6 +71,30 @@ public class ConsumerByPartitionRunner implements Runnable {
 	}
 	
 	/**
+	 * 获取 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfSubscribed(List<String> topics) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.subscribe(topics);
+		return consumer;
+	}
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfAssigned(Collection<TopicPartition> partitions) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.assign(partitions);
+		return consumer;
+	}
+	
+	/**
+	 * 关闭 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> void close(KafkaConsumer<K,V> consumer) {
+		consumer.close();
+	}
+	
+	
+	/**
 	 * run
 	 * 
 	 */
@@ -77,8 +102,7 @@ public class ConsumerByPartitionRunner implements Runnable {
 		//
 		KafkaConsumer<String, String> consumer = null;
 		try {
-			consumer = new KafkaConsumer<>(getConfiguration());
-			consumer.assign(Arrays.asList(topicPatition)); 
+			consumer = getKafkaConsumerOfAssigned(Arrays.asList(topicPatition)); //
 			
 			while (!isClosed.get()) {
 				ConsumerRecords<String, String> records = consumer.poll(200); //这些消息属于手动分配的同一个分区

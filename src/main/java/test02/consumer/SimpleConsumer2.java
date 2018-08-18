@@ -2,6 +2,7 @@ package test02.consumer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -9,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 
 /**
  * 消息消费者，手动offset
@@ -49,11 +51,36 @@ public class SimpleConsumer2 {
 		return props;
 	}
 	
+	/**
+	 * 获取 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfSubscribed(List<String> topics) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.subscribe(topics);
+		return consumer;
+	}
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfAssigned(Collection<TopicPartition> partitions) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.assign(partitions);
+		return consumer;
+	}
 	
-	@SuppressWarnings("resource")
+	/**
+	 * 关闭 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> void close(KafkaConsumer<K,V> consumer) {
+		consumer.close();
+	}
+	
+	
+	/*
+	 * main
+	 * 
+	 */
 	public static void main(String[] args) {
-		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(getConfiguration());
-		consumer.subscribe(Arrays.asList("test0807"));
+		KafkaConsumer<String, String> consumer = getKafkaConsumerOfSubscribed(Arrays.asList("test0807"));
 		
 		final int batchSize = 5;
 		List<ConsumerRecord<String, String>> bufferList = new ArrayList<>();

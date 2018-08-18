@@ -1,14 +1,16 @@
 package test01.producer;
 
-import java.util.Arrays;
 import java.util.Properties;
+
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+
 import com.alibaba.fastjson.JSON;
+
 import utils.KafkaMessage;
 
 /**
@@ -52,7 +54,7 @@ public class SimpleProducerClient {
 	 * 
 	 */
 	public static <T> void produceMsg(KafkaMessage<T> km, Callback callback) {
-		ProducerRecord<String, String> record = new ProducerRecord<String, String>(km.getTopic(), km.getTimestamp(), JSON.toJSONString(km));
+		ProducerRecord<String, String> record = new ProducerRecord<String, String>(km.getTopic(), km.getKey(), JSON.toJSONString(km));
 		if (callback==null) {
 			producer.send(record);
 		} else {
@@ -64,7 +66,7 @@ public class SimpleProducerClient {
 	public static void main(String[] args) {
 		String topicName = "test0807";
 		String subType = "test";
-		SimpleProducerClient.produceMsg(new KafkaMessage<>(topicName, subType, Arrays.asList("a", "b", "c")), new Callback() {
+		SimpleProducerClient.produceMsg(new KafkaMessage<>(topicName, subType, "1", "message-1"), new Callback() {
 			@Override
 			public void onCompletion(RecordMetadata metadata, Exception exception) {
 				System.out.println("[*] call ack");

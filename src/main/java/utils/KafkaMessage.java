@@ -1,33 +1,24 @@
 package utils;
 
 import java.io.Serializable;
-import java.util.Date;
-
 
 /**
- * KafkaMessage<T>
+ * KafkaMessage<M>
  * 
  */
-public class KafkaMessage<T> implements Serializable {
+public class KafkaMessage<M> implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private String timestamp; 	 	//发送时间，使用时间戳作为消息的key
 	private String topic;         	//该消息的topic
 	private String subType;       	//topic下的子分类，如果没有子分类，该值为空
-	private T t;           		 	//泛型，发送的具体消息内容，可能为json等
+	private String key; 	 		//发送消息的key
+	private M message;           	//发送的具体消息内容（可能为json等）
 	
 	public KafkaMessage() {}
-	public KafkaMessage(String topic, String subType, T t) {
+	public KafkaMessage(String topic, String subType, String key, M message) {
 		this.topic = topic;
 		this.subType = subType;
-		this.t = t;
-		this.timestamp = Long.toString(new Date().getTime());
-	}
-	
-	public String getTimestamp() {
-		return timestamp;
-	}
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+		this.key = key;
+		this.message = message;
 	}
 	public String getTopic() {
 		return topic;
@@ -41,13 +32,23 @@ public class KafkaMessage<T> implements Serializable {
 	public void setSubType(String subType) {
 		this.subType = subType;
 	}
-	public T getT() {
-		return t;
+	public String getKey() {
+		return key;
 	}
-	public void setT(T t) {
-		this.t = t;
+	public void setKey(String key) {
+		this.key = key;
+	}
+	public M getMessage() {
+		return message;
+	}
+	public void setMessage(M message) {
+		this.message = message;
 	}
 	
+	@Override
+	public String toString() {
+		return "["+topic+":"+subType+"] key=" + key + ", message=" + message;
+	}
 }
 
 

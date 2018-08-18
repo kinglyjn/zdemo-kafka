@@ -66,7 +66,7 @@ public class SimpleProducer {
 		String topicName = "test0807";
 		
 		// 生产消息
-		for(int i = 0; i < 2; i++) {
+		for(int i = 0; i < 100; i++) {
 			producer.send(new ProducerRecord<String, String>(topicName, Integer.toString(i), "这是发送的消息-"+i), new Callback() {
 				@Override
 				public void onCompletion(RecordMetadata metadata, Exception exception) {

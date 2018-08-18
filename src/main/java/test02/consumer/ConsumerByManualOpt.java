@@ -1,6 +1,7 @@
 package test02.consumer;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -54,6 +55,29 @@ public class ConsumerByManualOpt {
 		return props;
 	}
 	
+	/**
+	 * 获取 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfSubscribed(List<String> topics) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.subscribe(topics);
+		return consumer;
+	}
+	public static <K,V> KafkaConsumer<K,V> getKafkaConsumerOfAssigned(Collection<TopicPartition> partitions) {
+		KafkaConsumer<K,V> consumer = new KafkaConsumer<>(getConfiguration());
+		consumer.assign(partitions);
+		return consumer;
+	}
+	
+	/**
+	 * 关闭 KafkaConsumer
+	 * 
+	 */
+	public static <K,V> void close(KafkaConsumer<K,V> consumer) {
+		consumer.close();
+	}
+	
 	
 	 /*
 	 * main
@@ -63,8 +87,8 @@ public class ConsumerByManualOpt {
 		//
 		KafkaConsumer<String, String> consumer = null;
 		try {
-			consumer = new KafkaConsumer<>(getConfiguration());
-			consumer.subscribe(Arrays.asList("test0807"));
+			consumer = getKafkaConsumerOfSubscribed(Arrays.asList("test0807"));
+			
 			while (true) {
 				ConsumerRecords<String, String> records = consumer.poll(200); //
 				for (TopicPartition partition : records.partitions()) {
