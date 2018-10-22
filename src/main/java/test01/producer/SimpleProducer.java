@@ -1,12 +1,10 @@
 package test01.producer;
 
+import org.apache.kafka.clients.producer.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 
 /**
  * kafka消息生产者测试
@@ -34,8 +32,8 @@ public class SimpleProducer {
 		Properties props = new Properties();
 		
 		// bootstrap.servers
-		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop01:9092,hadoop07:9092,hadoop08:9092");
-		// 0不需要回执确认; 1仅需要leader回执确认; all[或者-1]需要leader和所有replica回执确认
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "host01:9092,host02:9092,host03:9092");
+		// 配置发送的消息是否等待应答：0不需要回执确认; 1仅需要leader回执确认; all[或者-1]需要leader和所有replica回执确认
 		props.put(ProducerConfig.ACKS_CONFIG, "1");
 		// 重试一次
 		props.put(ProducerConfig.RETRIES_CONFIG, 1); 
@@ -49,9 +47,16 @@ public class SimpleProducer {
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 		// value.serializer
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+
 		// partitioner.class
 		//props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, "test01.producer.MyPartitioner"); //指定分区
-		
+
+        // interceptor.classes
+		List<String> interceptorList = new ArrayList<>();
+		interceptorList.add("test01.producer.ProducerInterceptor01");
+		interceptorList.add("test01.producer.ProducerInterceptor02");
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, interceptorList);
+
 		return props;
 	}
 	
@@ -63,10 +68,10 @@ public class SimpleProducer {
 	 */
 	public static void main(String[] args) {
 		Producer<String, String> producer = new KafkaProducer<String,String>(getConfiguration());
-		String topicName = "test0807";
+		String topicName = "topic01";
 		
 		// 生产消息
-		for(int i = 0; i < 100; i++) {
+		for(int i = 0; i < 1000; i++) {
 			producer.send(new ProducerRecord<String, String>(topicName, Integer.toString(i), "这是发送的消息-"+i), new Callback() {
 				@Override
 				public void onCompletion(RecordMetadata metadata, Exception exception) {

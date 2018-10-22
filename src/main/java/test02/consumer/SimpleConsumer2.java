@@ -1,16 +1,12 @@
 package test02.consumer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+
+import java.util.*;
 
 /**
  * 消息消费者，手动offset
@@ -27,7 +23,7 @@ public class SimpleConsumer2 {
 		Properties props = new Properties();
 		
 		// bootstrap.servers 需要本地设置hosts路由映射
-		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "hadoop01:9092,hadoop07:9092,hadoop08:9092");
+		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "host01:9092,host02:9092,host03:9092");
 		// group.id
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, "group01");
 		// enable.auto.commit & auto.commit.interval.ms 设置自动offset，offset的值在0.10.1.1版本以后默认存放在__consumer_offsets主题中
@@ -80,8 +76,17 @@ public class SimpleConsumer2 {
 	 * 
 	 */
 	public static void main(String[] args) {
-		KafkaConsumer<String, String> consumer = getKafkaConsumerOfSubscribed(Arrays.asList("test0807"));
-		
+		KafkaConsumer<String, String> consumer = getKafkaConsumerOfSubscribed(Arrays.asList("topic01"));
+		// 释放资源守护线程
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if (consumer != null) {
+					consumer.close();
+				}
+			}
+		}));
+
 		final int batchSize = 5;
 		List<ConsumerRecord<String, String>> bufferList = new ArrayList<>();
 		while (true) {
